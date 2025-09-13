@@ -26,8 +26,8 @@ export default async function InvoiceCreationPage() {
   return (
     <DashboardLayout>
       <PageHeader
-        title="Create Invoices"
-        description="Select pending orders to generate invoices in bulk."
+        title="Invoices"
+        description="Select pending orders to generate invoices."
       />
       <div className="p-4 lg:p-6">
         <div className="rounded-lg border shadow-sm">

@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import {
   CalendarDays,
   ClipboardList,
-  FilePlus2,
   FileText,
   LayoutDashboard,
   Map,
@@ -24,8 +23,7 @@ import {
 const links = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/orders', label: 'All Orders', icon: ClipboardList },
-  { href: '/invoices', label: 'Create Invoices', icon: FilePlus2 },
-  { href: '/invoices/list', label: 'Invoices List', icon: FileText },
+  { href: '/invoices', label: 'Invoices', icon: FileText },
   { href: '/load-sheets', label: 'Load Sheets', icon: Truck },
   { href: '/schedule', label: 'Schedule', icon: CalendarDays },
   { href: '/routes', label: 'Route Plans', icon: Map },
@@ -43,7 +41,7 @@ export default function MainNav() {
         <SidebarMenuItem key={link.href}>
           <SidebarMenuButton
             asChild
-            isActive={pathname === link.href}
+            isActive={pathname.startsWith(link.href) && (link.href === '/' ? pathname === '/' : true)}
             tooltip={link.label}
           >
             <Link href={link.href}>

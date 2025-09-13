@@ -28,7 +28,13 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
 
   const outlet = outlets.find((o) => o.id === order.outletId);
   const user = users.find((u) => u.id === order.userId);
-  const totalAmount = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  
+  const hasBeenFulfilled = order.status === 'Fulfilled' && order.fulfilledItems && order.fulfilledItems.length > 0;
+
+  const itemsToDisplay = hasBeenFulfilled ? order.fulfilledItems! : order.items;
+  
+  const totalAmount = itemsToDisplay.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
 
   return (
     <div className="p-4 lg:p-8 max-w-4xl mx-auto">
@@ -61,20 +67,20 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Item</TableHead>
-                <TableHead>Batch</TableHead>
+                {hasBeenFulfilled && <TableHead>Batch</TableHead>}
                 <TableHead className="text-center">Quantity</TableHead>
                 <TableHead className="text-right">Unit Price</TableHead>
                 <TableHead className="text-right">Total</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {order.fulfilledItems?.map((item, index) => {
+              {itemsToDisplay.map((item, index) => {
                 const sku = skus.find((s) => s.id === item.skuId);
-                const batch = batches.find((b) => b.id === item.batchId);
+                const batch = hasBeenFulfilled ? batches.find((b) => b.id === (item as any).batchId) : null;
                 return (
                   <TableRow key={index}>
                     <TableCell className="font-medium">{sku?.name}</TableCell>
-                    <TableCell>{batch?.batchNumber}</TableCell>
+                    {hasBeenFulfilled && <TableCell>{batch?.batchNumber}</TableCell>}
                     <TableCell className="text-center">{item.quantity}</TableCell>
                     <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
                     <TableCell className="text-right">${(item.quantity * item.price).toFixed(2)}</TableCell>

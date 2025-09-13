@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   Map,
   Package,
+  PlusCircle,
   Store,
   Truck,
   Warehouse,
@@ -21,7 +22,8 @@ import {
 
 const links = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/orders', label: 'Orders & Invoices', icon: ClipboardList },
+  { href: '/orders/create', label: 'Create Order', icon: PlusCircle },
+  { href: '/orders', label: 'View Orders', icon: ClipboardList },
   { href: '/load-sheets', label: 'Load Sheets', icon: Truck },
   { href: '/inventory', label: 'Inventory', icon: Warehouse },
   { href: '/sku', label: 'SKU Master', icon: Package },

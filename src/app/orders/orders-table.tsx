@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, FileText, PackageCheck } from 'lucide-react';
+import { MoreHorizontal, FileText, PackageCheck, Truck } from 'lucide-react';
 import Link from 'next/link';
 import { generateInvoice, generateInvoices } from './actions';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -118,7 +118,7 @@ export default function OrdersTable({ data }: OrdersTableProps) {
         <div className="p-2 border-b bg-muted/50 flex items-center gap-2">
             <p className="text-sm text-muted-foreground px-2">{selectedRowIds.length} order(s) selected.</p>
             <Button size="sm" onClick={handleBulkInvoice}><FileText className="mr-2" /> Generate Invoices</Button>
-            <Button size="sm" variant="outline"><PackageCheck className="mr-2" /> Create Load Sheet</Button>
+            <Button size="sm" variant="outline"><Truck className="mr-2" /> Create Load Sheet</Button>
         </div>
       )}
       <Table>

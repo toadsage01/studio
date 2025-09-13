@@ -11,6 +11,7 @@ import {
   PlusCircle,
   Store,
   Truck,
+  Users,
   Warehouse,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -30,6 +31,7 @@ const links = [
   { href: '/schedule', label: 'Schedule', icon: CalendarDays },
   { href: '/routes', label: 'Route Plans', icon: Map },
   { href: '/outlets', label: 'Outlets', icon: Store },
+  { href: '/users', label: 'User Management', icon: Users },
 ];
 
 export default function MainNav() {

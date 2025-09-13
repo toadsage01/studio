@@ -2,7 +2,7 @@
 export type User = {
   id: string;
   name: string;
-  role: 'Admin' | 'Sales Rep';
+  role: 'Admin' | 'Manager' | 'Sales Rep';
 };
 
 export type SKU = {

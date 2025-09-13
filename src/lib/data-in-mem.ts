@@ -8,6 +8,7 @@ export const users: User[] = [
   { id: 'user-1', name: 'Admin User', role: 'Admin' },
   { id: 'user-2', name: 'Sarah Reed', role: 'Sales Rep' },
   { id: 'user-3', name: 'Alex Johnson', role: 'Sales Rep' },
+  { id: 'user-4', name: 'Manager Mike', role: 'Manager' },
 ];
 
 export const skus: SKU[] = [

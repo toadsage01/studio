@@ -18,18 +18,24 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { generateInvoices } from './actions';
 import { PlusCircle } from 'lucide-react';
+import type { User } from '@/lib/types';
 
 export default async function OrdersPage() {
   const orders = await getOrders();
   const outlets = await getOutlets();
-  const users = await getUsers();
+  const allUsers = await getUsers();
+
+  // In a real app, you would get the current user from an authentication context.
+  // For this prototype, we'll hardcode the current user as an Admin.
+  // You can change this to 'user-2' (Sales Rep) or 'user-4' (Manager) to test access control.
+  const currentUser = allUsers.find(u => u.id === 'user-1') as User;
 
   const pendingOrders = orders.filter(o => o.status === 'Pending');
   const invoicedOrders = orders.filter(o => o.invoiceId);
 
   const pendingOrdersWithDetails = pendingOrders.map(order => {
     const outlet = outlets.find((o) => o.id === order.outletId);
-    const user = users.find((u) => u.id === order.userId);
+    const user = allUsers.find((u) => u.id === order.userId);
     return {
       ...order,
       outletName: outlet?.name ?? 'N/A',
@@ -39,7 +45,7 @@ export default async function OrdersPage() {
 
   const invoicedOrdersWithDetails = invoicedOrders.map(order => {
     const outlet = outlets.find((o) => o.id === order.outletId);
-    const user = users.find((u) => u.id === order.userId);
+    const user = allUsers.find((u) => u.id === order.userId);
     return {
       ...order,
       outletName: outlet?.name ?? 'N/A',
@@ -71,7 +77,11 @@ export default async function OrdersPage() {
           <TabsContent value="pending">
              <div className="rounded-lg border shadow-sm mt-4">
               {pendingOrdersWithDetails.length > 0 ? (
-                <OrdersTable data={pendingOrdersWithDetails} onBulkInvoice={generateInvoices} />
+                <OrdersTable 
+                  data={pendingOrdersWithDetails} 
+                  currentUser={currentUser}
+                  onBulkInvoice={generateInvoices} 
+                />
               ) : (
                  <div className="flex flex-1 items-center justify-center rounded-lg border-dashed shadow-sm h-[30vh]">
                     <div className="flex flex-col items-center gap-1 text-center">

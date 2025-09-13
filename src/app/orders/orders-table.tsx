@@ -24,7 +24,7 @@ import { MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
 import { generateInvoice } from './actions';
 import { Checkbox } from '@/components/ui/checkbox';
-import type { Order } from '@/lib/types';
+import type { Order, User } from '@/lib/types';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
@@ -51,12 +51,15 @@ function GenerateInvoiceButton({ orderId, status }: { orderId: string, status: s
 
 type OrdersTableProps = {
   data: OrderWithDetails[];
+  currentUser: User;
   onBulkInvoice: (orderIds: string[]) => Promise<{success: boolean; message: string}>;
 };
 
-export default function OrdersTable({ data, onBulkInvoice }: OrdersTableProps) {
+export default function OrdersTable({ data, currentUser, onBulkInvoice }: OrdersTableProps) {
   const [selectedRowIds, setSelectedRowIds] = React.useState<string[]>([]);
   const { toast } = useToast();
+
+  const canGenerateInvoice = currentUser.role === 'Admin' || currentUser.role === 'Manager';
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -107,25 +110,29 @@ export default function OrdersTable({ data, onBulkInvoice }: OrdersTableProps) {
 
   return (
     <>
-      <div className="p-4 bg-muted/50 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="text-sm text-muted-foreground">
-          {numSelected} of {numInvocable} order(s) selected.
+      {canGenerateInvoice && (
+        <div className="p-4 bg-muted/50 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="text-sm text-muted-foreground">
+            {numSelected} of {numInvocable} order(s) selected.
+          </div>
+          <Button size="sm" onClick={handleBulkAction} disabled={numSelected === 0}>
+            Generate Invoices
+          </Button>
         </div>
-        <Button size="sm" onClick={handleBulkAction} disabled={numSelected === 0}>
-           Generate Invoices
-        </Button>
-      </div>
+      )}
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-10">
-              <Checkbox
-                checked={numSelected > 0 && numSelected === numInvocable}
-                onCheckedChange={(checked) => handleSelectAll(!!checked)}
-                aria-label="Select all pending orders"
-                disabled={numInvocable === 0}
-              />
-            </TableHead>
+            {canGenerateInvoice && (
+              <TableHead className="w-10">
+                <Checkbox
+                  checked={numSelected > 0 && numSelected === numInvocable}
+                  onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                  aria-label="Select all pending orders"
+                  disabled={numInvocable === 0}
+                />
+              </TableHead>
+            )}
             <TableHead>Order ID</TableHead>
             <TableHead>Outlet</TableHead>
             <TableHead>Sales Rep</TableHead>
@@ -144,13 +151,15 @@ export default function OrdersTable({ data, onBulkInvoice }: OrdersTableProps) {
 
             return (
               <TableRow key={order.id} data-state={isSelected ? 'selected' : undefined}>
-                <TableCell>
-                  <Checkbox
-                    checked={isSelected}
-                    onCheckedChange={(checked) => handleSelectRow(order.id, !!checked)}
-                    aria-label={`Select order ${order.id}`}
-                  />
-                </TableCell>
+                {canGenerateInvoice && (
+                  <TableCell>
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={(checked) => handleSelectRow(order.id, !!checked)}
+                      aria-label={`Select order ${order.id}`}
+                    />
+                  </TableCell>
+                )}
                 <TableCell className="font-medium">#{order.id.split('-')[1].toUpperCase()}</TableCell>
                 <TableCell>{order.outletName}</TableCell>
                 <TableCell>{order.userName}</TableCell>
@@ -178,12 +187,16 @@ export default function OrdersTable({ data, onBulkInvoice }: OrdersTableProps) {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      {order.status !== 'Pending' ? (
+                      {order.invoiceId ? (
                          <DropdownMenuItem asChild>
                             <Link href={`/orders/${order.id}/invoice`}>View Invoice</Link>
                           </DropdownMenuItem>
                       ) : (
-                         <GenerateInvoiceButton orderId={order.id} status={order.status} />
+                        canGenerateInvoice ? (
+                          <GenerateInvoiceButton orderId={order.id} status={order.status} />
+                        ) : (
+                          <DropdownMenuItem disabled>Invoice not generated</DropdownMenuItem>
+                        )
                       )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className="text-destructive">

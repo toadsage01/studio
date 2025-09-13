@@ -1,6 +1,6 @@
 import DashboardLayout from '@/components/dashboard-layout';
 import PageHeader from '@/components/page-header';
-import { getSKUs, getBatches, getUsers } from '@/lib/data';
+import { getSKUs, getBatches } from '@/lib/data';
 import {
   Table,
   TableBody,
@@ -19,7 +19,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Package } from 'lucide-react';
+import { Package, PlusCircle } from 'lucide-react';
+import AddBatchForm from './add-batch-form';
+import { addBatch } from './actions';
 
 async function BatchDetails({ skuId }: { skuId: string }) {
   const batches = await getBatches(skuId);
@@ -60,6 +62,23 @@ export default async function InventoryPage() {
       <PageHeader
         title="Inventory Management"
         description="Monitor stock levels and manage batch-wise inventory."
+        actions={
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <PlusCircle className="mr-2" />
+                Add Batch
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Add New Batch</DialogTitle>
+                <DialogDescription>Enter the details for the new batch of inventory.</DialogDescription>
+              </DialogHeader>
+              <AddBatchForm skus={skus} onAddBatch={addBatch} />
+            </DialogContent>
+          </Dialog>
+        }
       />
       <div className="p-4 lg:p-6">
         <div className="rounded-lg border shadow-sm">

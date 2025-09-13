@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
 
 type InvoicePageProps = {
   params: {
@@ -50,7 +51,7 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
               <p className="text-sm text-muted-foreground">{outlet?.address}</p>
             </div>
             <div className="text-right">
-              <p><span className="font-semibold">Invoice Date:</span> {new Date(order.orderDate).toLocaleDateString()}</p>
+              <p><span className="font-semibold">Invoice Date:</span> {format(new Date(order.orderDate), 'MM/dd/yyyy')}</p>
               <p><span className="font-semibold">Sales Rep:</span> {user?.name}</p>
             </div>
           </div>

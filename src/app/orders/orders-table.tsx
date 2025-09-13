@@ -25,6 +25,7 @@ import { generateInvoice, generateInvoices } from './actions';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { Order } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
 
 type OrderWithDetails = Order & {
   outletName: string;
@@ -156,7 +157,7 @@ export default function OrdersTable({ data }: OrdersTableProps) {
                 <TableCell className="font-medium">#{order.id.split('-')[1].toUpperCase()}</TableCell>
                 <TableCell>{order.outletName}</TableCell>
                 <TableCell>{order.userName}</TableCell>
-                <TableCell>{new Date(order.orderDate).toLocaleDateString()}</TableCell>
+                <TableCell>{format(new Date(order.orderDate), 'MM/dd/yyyy')}</TableCell>
                 <TableCell>
                   <Badge
                     variant={order.status === 'Fulfilled' ? 'secondary' : order.status === 'Cancelled' ? 'destructive' : 'outline'}

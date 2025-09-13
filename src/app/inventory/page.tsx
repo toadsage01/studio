@@ -22,6 +22,7 @@ import {
 import { Package, PlusCircle } from 'lucide-react';
 import AddBatchForm from './add-batch-form';
 import { addBatch } from './actions';
+import { format } from 'date-fns';
 
 async function BatchDetails({ skuId }: { skuId: string }) {
   const batches = await getBatches(skuId);
@@ -46,7 +47,7 @@ async function BatchDetails({ skuId }: { skuId: string }) {
             <TableCell>{batch.batchNumber}</TableCell>
             <TableCell>{batch.quantity}</TableCell>
             <TableCell>${batch.price.toFixed(2)}</TableCell>
-            <TableCell>{new Date(batch.expiryDate).toLocaleDateString()}</TableCell>
+            <TableCell>{format(new Date(batch.expiryDate), 'MM/dd/yyyy')}</TableCell>
           </TableRow>
         ))}
       </TableBody>

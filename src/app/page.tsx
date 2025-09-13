@@ -5,6 +5,7 @@ import {
   Package,
   Route,
 } from 'lucide-react';
+import { format } from 'date-fns';
 
 import DashboardLayout from '@/components/dashboard-layout';
 import PageHeader from '@/components/page-header';
@@ -108,7 +109,7 @@ export default async function Dashboard() {
                     <TableRow key={order.id}>
                       <TableCell>
                         <div className="font-medium">{outlets.find(o => o.id === order.outletId)?.name}</div>
-                        <div className="text-sm text-muted-foreground">{new Date(order.orderDate).toLocaleDateString()}</div>
+                        <div className="text-sm text-muted-foreground">{format(new Date(order.orderDate), 'MM/dd/yyyy')}</div>
                       </TableCell>
                       <TableCell>
                         <Badge variant={order.status === 'Fulfilled' ? 'secondary' : order.status === 'Pending' ? 'default' : 'outline'}

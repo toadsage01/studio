@@ -26,6 +26,7 @@ import { generateInvoice } from './actions';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { Order } from '@/lib/types';
 import { format } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 type OrderWithDetails = Order & {
   outletName: string;

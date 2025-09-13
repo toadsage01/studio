@@ -37,7 +37,7 @@ function Logo() {
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen w-full">
-      <Sidebar variant="inset" collapsible="icon">
+      <Sidebar>
         <SidebarHeader>
           <Logo />
         </SidebarHeader>
@@ -46,7 +46,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </SidebarContent>
         <SidebarRail />
       </Sidebar>
-      <SidebarInset>{children}</SidebarInset>
+      <div className="flex-1">
+        {children}
+      </div>
     </div>
   );
 }

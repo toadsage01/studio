@@ -20,6 +20,25 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
+import Link from 'next/link';
+import { generateInvoice } from './actions';
+
+function GenerateInvoiceButton({ orderId, status }: { orderId: string, status: string }) {
+  const generateInvoiceWithId = generateInvoice.bind(null, orderId);
+
+  return (
+    <form action={generateInvoiceWithId}>
+      <button
+        type="submit"
+        disabled={status !== 'Pending'}
+        className="w-full text-left relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+      >
+        Generate Invoice
+      </button>
+    </form>
+  );
+}
+
 
 export default async function OrdersPage() {
   const orders = await getOrders();
@@ -71,7 +90,7 @@ export default async function OrdersPage() {
                         {order.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">${amount.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                     <TableCell className="text-right">
                        <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -82,8 +101,16 @@ export default async function OrdersPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>View Order Details</DropdownMenuItem>
-                          <DropdownMenuItem>Generate Invoice</DropdownMenuItem>
+                          {order.status === 'Invoiced' || order.status === 'Fulfilled' ? (
+                             <DropdownMenuItem asChild>
+                                <Link href={`/orders/${order.id}/invoice`}>View Invoice</Link>
+                              </DropdownMenuItem>
+                          ) : (
+                             <DropdownMenuItem>View Order Details</DropdownMenuItem>
+                          )}
+                          {order.status === 'Pending' && (
+                            <GenerateInvoiceButton orderId={order.id} status={order.status} />
+                          )}
                           <DropdownMenuSeparator />
                           <DropdownMenuItem className="text-destructive">
                             Cancel Order

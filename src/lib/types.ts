@@ -57,4 +57,11 @@ export type Order = {
   orderDate: string;
   items: OrderItem[];
   status: 'Pending' | 'Invoiced' | 'Fulfilled' | 'Cancelled';
+  invoiceId?: string;
+  fulfilledItems?: {
+    skuId: string;
+    quantity: number;
+    batchId: string;
+    price: number;
+  }[];
 };

@@ -169,7 +169,7 @@ export default function LoadSheetCreator({ data, users }: LoadSheetCreatorProps)
                             </TableCell>
                             <TableCell>{order.outletName}</TableCell>
                             <TableCell>{format(new Date(order.orderDate), 'MM/dd/yyyy')}</TableCell>
-                           <TableCell className="text-right">${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                           <TableCell className="text-right">₹{amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                         </TableRow>
                         );
                     })}

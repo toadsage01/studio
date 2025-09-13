@@ -17,6 +17,7 @@ import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { generateInvoices } from './actions';
+import { PlusCircle } from 'lucide-react';
 
 export default async function OrdersPage() {
   const orders = await getOrders();
@@ -52,6 +53,14 @@ export default async function OrdersPage() {
       <PageHeader
         title="View Orders & Invoices"
         description="Create invoices from pending orders and view generated invoices."
+        actions={
+            <Button asChild>
+                <Link href="/orders/create">
+                    <PlusCircle className="mr-2"/>
+                    Create Order
+                </Link>
+            </Button>
+        }
       />
       <div className="p-4 lg:p-6">
         <Tabs defaultValue="pending">
@@ -113,7 +122,7 @@ export default async function OrdersPage() {
                               {order.status}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-right">${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-right">₹{amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell className="text-right">
                             <Button asChild variant="ghost" size="sm">
                               <Link href={`/orders/${order.id}/invoice`}>View Invoice</Link>

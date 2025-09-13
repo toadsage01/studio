@@ -69,7 +69,7 @@ export default async function OutletsPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <CreditCard className="h-4 w-4 text-muted-foreground" />
-                  <span>Credit Limit: ${outlet.creditLimit.toLocaleString()}</span>
+                  <span>Credit Limit: ₹{outlet.creditLimit.toLocaleString('en-IN')}</span>
                 </div>
                  <div className="flex items-start gap-3">
                   <span className="font-medium text-muted-foreground pt-1">Payment:</span>

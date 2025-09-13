@@ -54,7 +54,7 @@ export default async function Dashboard() {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${totalSales.toLocaleString()}</div>
+              <div className="text-2xl font-bold">₹{totalSales.toLocaleString('en-IN')}</div>
               <p className="text-xs text-muted-foreground">+20.1% from last month</p>
             </CardContent>
           </Card>
@@ -117,7 +117,7 @@ export default async function Dashboard() {
                           {order.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right">${order.items.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString()}</TableCell>
+                      <TableCell className="text-right">₹{order.items.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString('en-IN')}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -154,7 +154,7 @@ export default async function Dashboard() {
               <div className="flex items-start gap-4">
                 <DollarSign className="h-5 w-5 text-muted-foreground mt-1"/>
                 <div className="space-y-1">
-                  <p className="text-sm">Invoice <span className="font-medium text-primary">INV-0342</span> for $1,204.50 was fulfilled.</p>
+                  <p className="text-sm">Invoice <span className="font-medium text-primary">INV-0342</span> for ₹1,204.50 was fulfilled.</p>
                   <time className="text-xs text-muted-foreground">3 hours ago</time>
                 </div>
               </div>

@@ -83,8 +83,8 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
                     <TableCell className="font-medium">{sku?.name}</TableCell>
                     {hasBeenFulfilled && <TableCell>{batch?.batchNumber}</TableCell>}
                     <TableCell className="text-center">{item.quantity}</TableCell>
-                    <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">${(item.quantity * item.price).toFixed(2)}</TableCell>
+                    <TableCell className="text-right">₹{item.price.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">₹{(item.quantity * item.price).toFixed(2)}</TableCell>
                   </TableRow>
                 );
               })}
@@ -95,16 +95,16 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
             <div className="w-full max-w-xs space-y-2">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${totalAmount.toFixed(2)}</span>
+                <span>₹{totalAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Taxes (0%)</span>
-                <span>$0.00</span>
+                <span>₹0.00</span>
               </div>
               <Separator />
               <div className="flex justify-between font-bold text-lg">
                 <span>Total</span>
-                <span>${totalAmount.toFixed(2)}</span>
+                <span>₹{totalAmount.toFixed(2)}</span>
               </div>
             </div>
           </div>

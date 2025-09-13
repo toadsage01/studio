@@ -47,7 +47,7 @@ async function BatchDetails({ skuId }: { skuId: string }) {
           <TableRow key={batch.id}>
             <TableCell>{batch.batchNumber}</TableCell>
             <TableCell>{batch.quantity}</TableCell>
-            <TableCell>${batch.price.toFixed(2)}</TableCell>
+            <TableCell>₹{batch.price.toFixed(2)}</TableCell>
             <TableCell>{format(new Date(batch.expiryDate), 'MM/dd/yyyy')}</TableCell>
           </TableRow>
         ))}

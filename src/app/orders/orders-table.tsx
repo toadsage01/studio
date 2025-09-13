@@ -167,7 +167,7 @@ export default function OrdersTable({ data, onBulkInvoice }: OrdersTableProps) {
                     {order.status}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right">${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                <TableCell className="text-right">₹{amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                 <TableCell className="text-right">
                    <DropdownMenu>
                     <DropdownMenuTrigger asChild>

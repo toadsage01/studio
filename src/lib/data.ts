@@ -1,5 +1,5 @@
-import type { User, SKU, Batch, Outlet, RoutePlan, RouteAssignment, Order } from './types';
-import { users, skus, batches, outlets, routePlans, routeAssignments, orders } from './data-in-mem';
+import type { User, SKU, Batch, Outlet, RoutePlan, RouteAssignment, Order, LoadSheet } from './types';
+import { users, skus, batches, outlets, routePlans, routeAssignments, orders, loadSheets } from './data-in-mem';
 
 // Simulate API calls
 export const getUsers = async (): Promise<User[]> => Promise.resolve(users);
@@ -14,3 +14,4 @@ export const getOutlets = async (): Promise<Outlet[]> => Promise.resolve(outlets
 export const getRoutePlans = async (): Promise<RoutePlan[]> => Promise.resolve(routePlans);
 export const getRouteAssignments = async (): Promise<RouteAssignment[]> => Promise.resolve(routeAssignments);
 export const getOrders = async (): Promise<Order[]> => Promise.resolve(orders);
+export const getLoadSheets = async (): Promise<LoadSheet[]> => Promise.resolve(loadSheets);

@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { Bot } from 'lucide-react';
 
 import MainNav from '@/components/main-nav';
 import {

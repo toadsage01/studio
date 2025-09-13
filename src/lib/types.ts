@@ -64,7 +64,7 @@ export type Order = {
   userId: string;
   orderDate: string;
   items: OrderItem[];
-  status: 'Pending' | 'Invoiced' | 'Fulfilled' | 'Cancelled';
+  status: 'Pending' | 'Invoiced' | 'Fulfilled' | 'Cancelled' | 'Partially Returned' | 'Returned';
   invoiceId?: string;
   fulfilledItems?: FulfilledItem[];
 };
@@ -75,13 +75,15 @@ export type LoadSheetItem = {
   requestedQuantity: number;
   fulfilledQuantity: number;
   batchId?: string; // Assigned during fulfillment
+  deliveryStatus: 'Pending' | 'Delivered' | 'Returned' | 'Partially Returned';
+  returnedQuantity: number;
 }
 
 export type LoadSheet = {
   id: string;
   creationDate: string;
-  assignedTo: string; // userId
-  status: 'Pending' | 'Loaded' | 'Delivered' | 'Completed';
+  assignedTo: string; // userName
+  status: 'Loaded' | 'Out for Delivery' | 'Completed' | 'Cancelled';
   items: LoadSheetItem[];
   relatedOrders: string[]; // orderIds
 }

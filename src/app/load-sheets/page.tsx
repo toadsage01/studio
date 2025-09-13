@@ -17,8 +17,10 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
-import { Truck, Package } from 'lucide-react';
+import { Truck, Package, Pencil } from 'lucide-react';
+import Link from 'next/link';
 
 export default async function LoadSheetsPage() {
   const orders = await getOrders();
@@ -45,7 +47,7 @@ export default async function LoadSheetsPage() {
     <DashboardLayout>
       <PageHeader
         title="Load Sheets"
-        description="Generate load sheets to fulfill invoiced orders."
+        description="Generate load sheets to fulfill invoiced orders and manage deliveries."
       />
       <div className="p-4 lg:p-6 space-y-6">
         <LoadSheetCreator data={invoicedOrdersWithDetails} users={allUsers} />
@@ -53,25 +55,37 @@ export default async function LoadSheetsPage() {
         <div className="border rounded-lg shadow-sm">
            <div className="p-4 border-b">
               <h3 className="text-lg font-semibold flex items-center gap-2"><Truck /> Generated Load Sheets</h3>
-              <p className="text-sm text-muted-foreground">Review previously generated load sheets and their fulfillment status.</p>
+              <p className="text-sm text-muted-foreground">Review previously generated load sheets and manage their fulfillment status.</p>
             </div>
           {loadSheets.length > 0 ? (
             <Accordion type="single" collapsible className="w-full">
               {loadSheets.map((sheet) => (
                 <AccordionItem value={sheet.id} key={sheet.id}>
-                  <AccordionTrigger className="px-4 hover:no-underline">
+                  <AccordionTrigger className="px-4 hover:no-underline data-[state=open]:border-b">
                     <div className="flex justify-between items-center w-full pr-4">
                         <div className="flex flex-col text-left">
                             <span className="font-bold text-primary">{sheet.id}</span>
                             <span className="text-sm text-muted-foreground">{format(new Date(sheet.creationDate), 'PPP')}</span>
                         </div>
                          <div className="text-sm">Assigned to: <span className="font-medium">{sheet.assignedTo}</span></div>
-                        <Badge variant="secondary">{sheet.status}</Badge>
+                        <Badge variant={sheet.status === 'Completed' ? 'secondary' : 'default'}
+                          className={sheet.status === 'Loaded' ? 'bg-accent text-accent-foreground' : ''}
+                        >
+                          {sheet.status}
+                        </Badge>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="bg-muted/50 p-4">
-                        <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm"><Package/> Items on this Load Sheet</h4>
+                        <div className="flex justify-between items-center mb-2">
+                           <h4 className="font-semibold flex items-center gap-2 text-sm"><Package/> Items on this Load Sheet</h4>
+                           <Button asChild size="sm" variant="outline">
+                             <Link href={`/load-sheets/${sheet.id}`}>
+                                <Pencil className="mr-2 h-3 w-3"/>
+                                Manage Sheet
+                             </Link>
+                           </Button>
+                        </div>
                          <Table>
                             <TableHeader>
                                 <TableRow>

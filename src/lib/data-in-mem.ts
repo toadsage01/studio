@@ -47,11 +47,11 @@ export const routeAssignments: RouteAssignment[] = [
 ];
 
 export const orders: Order[] = [
-  { id: 'order-1', outletId: 'outlet-1', userId: 'user-2', orderDate: '2024-07-28T10:30:00Z', items: [{ skuId: 'sku-1', quantity: 24, price: 0.50 }, { skuId: 'sku-2', quantity: 12, price: 1.20 }], status: 'Fulfilled', invoiceId: 'INV-1' },
-  { id: 'order-2', outletId: 'outlet-2', userId: 'user-2', orderDate: '2024-07-28T14:00:00Z', items: [{ skuId: 'sku-3', quantity: 48, price: 0.75 }], status: 'Fulfilled', invoiceId: 'INV-2' },
+  { id: 'order-1', outletId: 'outlet-1', userId: 'user-2', orderDate: '2024-07-28T10:30:00Z', items: [{ skuId: 'sku-1', quantity: 24, price: 0.50 }, { skuId: 'sku-2', quantity: 12, price: 1.20 }], status: 'Fulfilled', invoiceId: 'INV-0001' },
+  { id: 'order-2', outletId: 'outlet-2', userId: 'user-2', orderDate: '2024-07-28T14:00:00Z', items: [{ skuId: 'sku-3', quantity: 48, price: 0.75 }], status: 'Fulfilled', invoiceId: 'INV-0002' },
   { id: 'order-3', outletId: 'outlet-3', userId: 'user-3', orderDate: '2024-07-29T09:00:00Z', items: [{ skuId: 'sku-4', quantity: 10, price: 2.50 }, { skuId: 'sku-5', quantity: 5, price: 3.00 }], status: 'Pending' },
   { id: 'order-4', outletId: 'outlet-1', userId: 'user-2', orderDate: '2024-07-30T11:00:00Z', items: [{ skuId: 'sku-2', quantity: 24, price: 1.20 }], status: 'Pending' },
-  { id: 'order-5', outletId: 'outlet-5', userId: 'user-2', orderDate: '2024-07-30T15:30:00Z', items: [{ skuId: 'sku-1', quantity: 12, price: 0.50 }], status: 'Invoiced', invoiceId: 'INV-5' },
+  { id: 'order-5', outletId: 'outlet-5', userId: 'user-2', orderDate: '2024-07-30T15:30:00Z', items: [{ skuId: 'sku-1', quantity: 12, price: 0.50 }], status: 'Invoiced', invoiceId: 'INV-0005' },
 ];
 
 export const loadSheets: LoadSheet[] = [];

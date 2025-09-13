@@ -64,7 +64,7 @@ export type Order = {
   userId: string;
   orderDate: string;
   items: OrderItem[];
-  status: 'Pending' | 'Invoiced' | 'Fulfilled' | 'Cancelled' | 'Partially Returned' | 'Returned';
+  status: 'Pending' | 'Invoiced' | 'Fulfilled' | 'Partially Fulfilled' | 'Cancelled' | 'Partially Returned' | 'Returned';
   invoiceId?: string;
   fulfilledItems?: FulfilledItem[];
 };

@@ -30,7 +30,7 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
   const outlet = outlets.find((o) => o.id === order.outletId);
   const user = users.find((u) => u.id === order.userId);
   
-  const hasBeenFulfilled = order.status === 'Fulfilled' && order.fulfilledItems && order.fulfilledItems.length > 0;
+  const hasBeenFulfilled = (order.status === 'Fulfilled' || order.status === 'Partially Fulfilled' || order.status === 'Partially Returned' || order.status === 'Returned') && order.fulfilledItems && order.fulfilledItems.length > 0;
 
   const itemsToDisplay = hasBeenFulfilled ? order.fulfilledItems! : order.items;
   

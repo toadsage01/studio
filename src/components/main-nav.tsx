@@ -23,11 +23,11 @@ const links = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/orders', label: 'Orders & Invoices', icon: ClipboardList },
   { href: '/load-sheets', label: 'Load Sheets', icon: Truck },
+  { href: '/inventory', label: 'Inventory', icon: Warehouse },
+  { href: '/sku', label: 'SKU Master', icon: Package },
   { href: '/schedule', label: 'Schedule', icon: CalendarDays },
   { href: '/routes', label: 'Route Plans', icon: Map },
   { href: '/outlets', label: 'Outlets', icon: Store },
-  { href: '/inventory', label: 'Inventory', icon: Warehouse },
-  { href: '/sku', label: 'SKU Master', icon: Package },
 ];
 
 export default function MainNav() {

@@ -1,3 +1,4 @@
+
 import type { ReactNode } from 'react';
 
 import MainNav from '@/components/main-nav';
@@ -6,6 +7,7 @@ import {
   SidebarContent,
   SidebarHeader,
   SidebarInset,
+  SidebarRail,
 } from '@/components/ui/sidebar';
 import { Button } from './ui/button';
 
@@ -42,6 +44,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <SidebarContent>
           <MainNav />
         </SidebarContent>
+        <SidebarRail />
       </Sidebar>
       <SidebarInset>{children}</SidebarInset>
     </div>

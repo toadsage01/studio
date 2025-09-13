@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { generateInvoices } from './actions';
 
 
 export default async function OrdersPage() {
@@ -61,7 +62,7 @@ export default async function OrdersPage() {
           </TabsList>
           <TabsContent value="pending">
              <div className="rounded-lg border shadow-sm mt-4">
-              <OrdersTable data={pendingOrdersWithDetails} />
+              <OrdersTable data={pendingOrdersWithDetails} onBulkInvoice={generateInvoices} />
             </div>
           </TabsContent>
           <TabsContent value="invoiced">
@@ -80,7 +81,7 @@ export default async function OrdersPage() {
                 </TableHeader>
                 <TableBody>
                   {invoicedOrdersWithDetails.map((order) => {
-                    const amount = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+                    const amount = (order.fulfilledItems || order.items).reduce((sum, item) => sum + item.price * item.quantity, 0);
                     return (
                       <TableRow key={order.id}>
                         <TableCell className="font-medium text-primary">{order.invoiceId}</TableCell>
@@ -90,7 +91,11 @@ export default async function OrdersPage() {
                         <TableCell>
                           <Badge
                             variant={order.status === 'Fulfilled' ? 'secondary' : 'default'}
-                            className={order.status === 'Invoiced' ? 'bg-primary/20 text-primary-foreground' : ''}
+                            className={
+                                order.status === 'Invoiced' ? 'bg-primary/20 text-primary-foreground' 
+                                : order.status === 'Partially Fulfilled' ? 'bg-accent text-accent-foreground'
+                                : ''
+                            }
                           >
                             {order.status}
                           </Badge>

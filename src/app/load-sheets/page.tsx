@@ -33,11 +33,9 @@ export default async function LoadSheetsPage() {
 
   const invoicedOrdersWithDetails = invoicedOrders.map((order) => {
     const outlet = outlets.find((o) => o.id === order.outletId);
-    const user = users.find((u) => u.id === order.userId);
     return {
       ...order,
       outletName: outlet?.name ?? 'N/A',
-      userName: user?.name ?? 'N/A',
     };
   });
   

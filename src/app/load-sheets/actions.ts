@@ -32,7 +32,7 @@ export async function createLoadSheet(orderIds: string[], userId: string) {
     }
     
     const allItemsToFulfill = ordersToProcess.flatMap(order => 
-        order.items.map(item => ({ ...item, orderId: order.id }))
+        order.items.map(item => ({ ...item, orderId: order.id, originalRequested: item.quantity }))
     );
 
     const loadSheetItems: LoadSheetItem[] = [];
@@ -58,18 +58,14 @@ export async function createLoadSheet(orderIds: string[], userId: string) {
         for (const batch of availableBatches) {
             if (requestedQtyForSku <= 0) break;
 
-            const qtyFromThisBatch = Math.min(requestedQtyForSku, batch.quantity);
+            let qtyFromThisBatch = Math.min(requestedQtyForSku, batch.quantity);
 
-            // This logic needs to distribute the fulfilled quantity back to the original orders
-            // For simplicity, we just create a load sheet item for the total fulfillment from this batch for the SKU
-            // and then later we can enhance it to track fulfillment per order item if needed.
-            
             // Distribute fulfilled quantity back to the original order items for this SKU
             for (const orderItem of itemsBySku[skuId]) {
-                if (orderItem.quantity === 0) continue; // Skip already fulfilled items in this loop
+                if (orderItem.quantity <= 0) continue; // Skip already fulfilled items in this loop
                 
                 const fulfillAmount = Math.min(orderItem.quantity, qtyFromThisBatch);
-                 if (fulfillAmount === 0) continue;
+                 if (fulfillAmount <= 0) continue;
 
                 if (!updatedFulfilledItemsByOrder[orderItem.orderId]) {
                     updatedFulfilledItemsByOrder[orderItem.orderId] = [];
@@ -88,22 +84,23 @@ export async function createLoadSheet(orderIds: string[], userId: string) {
                     });
                 }
 
-                // Add to load sheet items
-                 const existingLoadSheetItem = loadSheetItems.find(lsi => lsi.orderId === orderItem.orderId && lsi.skuId === skuId);
-                 if (existingLoadSheetItem) {
-                    existingLoadSheetItem.fulfilledQuantity += fulfillAmount;
-                    // If fulfillment is from multiple batches, we might need a more complex structure
-                    existingLoadSheetItem.batchId = batch.id; // Overwriting for simplicity, might need array
+                // Find or create load sheet item
+                 let loadSheetItem = loadSheetItems.find(lsi => lsi.orderId === orderItem.orderId && lsi.skuId === skuId);
+                 if (loadSheetItem) {
+                    loadSheetItem.fulfilledQuantity += fulfillAmount;
+                    // For simplicity, we just take the last batchId. A real app might need an array of batches.
+                    loadSheetItem.batchId = batch.id;
                  } else {
-                    loadSheetItems.push({
+                    loadSheetItem = {
                         orderId: orderItem.orderId,
                         skuId: skuId,
-                        requestedQuantity: orderItem.quantity,
+                        requestedQuantity: orderItem.originalRequested,
                         fulfilledQuantity: fulfillAmount,
                         batchId: batch.id,
                         deliveryStatus: 'Pending',
                         returnedQuantity: 0,
-                    });
+                    };
+                    loadSheetItems.push(loadSheetItem);
                  }
                 
                 // Update master stock records
@@ -112,6 +109,7 @@ export async function createLoadSheet(orderIds: string[], userId: string) {
                     sku.stock -= fulfillAmount;
                 }
                 batch.quantity -= fulfillAmount;
+                qtyFromThisBatch -= fulfillAmount;
                 requestedQtyForSku -= fulfillAmount;
 
                 // Mark this part of the order item as processed
@@ -133,12 +131,12 @@ export async function createLoadSheet(orderIds: string[], userId: string) {
     
     // Update order statuses and fulfilledItems
     ordersToProcess.forEach(order => {
-        const fulfilledItems = updatedFulfilledItemsByOrder[order.id] || [];
+        const fulfilledItemsForOrder = updatedFulfilledItemsByOrder[order.id] || [];
         const totalRequested = order.items.reduce((sum, i) => sum + i.quantity, 0);
-        const totalFulfilled = fulfilledItems.reduce((sum, i) => sum + i.quantity, 0);
+        const totalFulfilled = fulfilledItemsForOrder.reduce((sum, i) => sum + i.quantity, 0);
 
-        order.status = totalFulfilled >= totalRequested ? 'Fulfilled' : 'Invoiced'; // Or a new "PartiallyFulfilled" status
-        order.fulfilledItems = fulfilledItems;
+        order.status = totalFulfilled >= totalRequested ? 'Fulfilled' : 'Partially Fulfilled';
+        order.fulfilledItems = fulfilledItemsForOrder;
     });
 
     revalidatePath('/load-sheets');
@@ -181,16 +179,37 @@ export async function updateLoadSheetItemStatus(loadSheetId: string, orderId: st
                 if (item.returnedQuantity > 0) {
                     item.deliveryStatus = item.returnedQuantity === item.fulfilledQuantity ? 'Returned' : 'Partially Returned';
                 }
-                order.status = 'Partially Returned'; // Or more complex logic
+                
+                // Update master order status
+                const totalReturnedForOrder = sheet.items
+                    .filter(i => i.orderId === orderId && i.deliveryStatus.includes('Return'))
+                    .reduce((sum, i) => sum + i.returnedQuantity, 0);
+                
+                if (totalReturnedForOrder > 0) {
+                   order.status = 'Partially Returned';
+                }
             }
         } else {
              item.deliveryStatus = 'Delivered';
         }
 
         // Check if all items are handled to update the sheet status
-        const allItemsDone = sheet.items.every(i => i.deliveryStatus === 'Delivered' || i.deliveryStatus === 'Returned');
+        const allItemsDone = sheet.items.every(i => i.deliveryStatus === 'Delivered' || i.deliveryStatus === 'Returned' || i.deliveryStatus === 'Partially Returned');
         if (allItemsDone) {
             sheet.status = 'Completed';
+            
+            // Final check on order status
+            sheet.relatedOrders.forEach(relOrderId => {
+                const relatedOrder = orders.find(o => o.id === relOrderId);
+                if (!relatedOrder) return;
+
+                const allItemsForOrderOnSheet = sheet.items.filter(i => i.orderId === relOrderId);
+                const isFullyReturned = allItemsForOrderOnSheet.every(i => i.deliveryStatus === 'Returned');
+                
+                if (isFullyReturned) {
+                    relatedOrder.status = 'Returned';
+                }
+            });
         }
 
         revalidatePath(`/load-sheets/${loadSheetId}`);

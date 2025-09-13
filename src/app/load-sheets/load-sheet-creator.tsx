@@ -10,7 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Truck, User } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -30,7 +29,6 @@ import {
 
 type OrderWithDetails = Order & {
   outletName: string;
-  userName: string;
 };
 
 type LoadSheetCreatorProps = {
@@ -80,23 +78,17 @@ export default function LoadSheetCreator({ data, users }: LoadSheetCreatorProps)
     }
 
     setIsSubmitting(true);
-    const result = await createLoadSheet(selectedRowIds, assignedUserId);
+    await createLoadSheet(selectedRowIds, assignedUserId);
     setIsSubmitting(false);
 
-    if (result?.success) {
-      toast({
-        title: 'Success',
-        description: 'Load sheet created and orders fulfilled successfully.',
-      });
-      setSelectedRowIds([]);
-      setAssignedUserId('');
-    } else if (result?.message) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: result.message,
-      });
-    }
+    // The action handles redirection, but we can still show a toast if we want
+    // For now, let's reset state. The page will be revalidated anyway.
+    toast({
+      title: 'Processing...',
+      description: 'Creating load sheet and fulfilling orders...',
+    });
+    setSelectedRowIds([]);
+    setAssignedUserId('');
   };
 
   const numSelected = selectedRowIds.length;
@@ -119,7 +111,7 @@ export default function LoadSheetCreator({ data, users }: LoadSheetCreatorProps)
                     <div className="flex items-center gap-2 w-full sm:w-auto">
                          <Select value={assignedUserId} onValueChange={setAssignedUserId}>
                             <SelectTrigger className="w-full sm:w-[180px]">
-                                <User className="mr-2" />
+                                <User className="mr-2 h-4 w-4" />
                                 <SelectValue placeholder="Assign to..." />
                             </SelectTrigger>
                             <SelectContent>

@@ -20,12 +20,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, FileText } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
-import { generateInvoice, generateInvoices } from './actions';
+import { generateInvoice } from './actions';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { Order } from '@/lib/types';
-import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
 type OrderWithDetails = Order & {
@@ -51,15 +50,16 @@ function GenerateInvoiceButton({ orderId, status }: { orderId: string, status: s
 
 type OrdersTableProps = {
   data: OrderWithDetails[];
+  onBulkInvoice: (orderIds: string[]) => Promise<{success: boolean; message: string}>;
 };
 
-export default function OrdersTable({ data }: OrdersTableProps) {
+export default function OrdersTable({ data, onBulkInvoice }: OrdersTableProps) {
   const [selectedRowIds, setSelectedRowIds] = React.useState<string[]>([]);
   const { toast } = useToast();
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      const pendingOrderIds = data.filter(row => row.status === 'Pending').map(row => row.id);
+      const pendingOrderIds = data.map(row => row.id);
       setSelectedRowIds(pendingOrderIds);
     } else {
       setSelectedRowIds([]);
@@ -74,27 +74,22 @@ export default function OrdersTable({ data }: OrdersTableProps) {
     }
   };
   
-  const handleBulkInvoice = async () => {
-    const pendingOrders = selectedRowIds.filter(id => {
-      const order = data.find(o => o.id === id);
-      return order?.status === 'Pending';
-    });
-
-    if (pendingOrders.length === 0) {
+  const handleBulkAction = async () => {
+    if (selectedRowIds.length === 0) {
       toast({
         variant: 'destructive',
-        title: 'No pending orders selected',
-        description: 'Please select at least one "Pending" order to generate invoices.',
+        title: 'No orders selected',
+        description: 'Please select at least one order.',
       });
       return;
     }
 
-    const result = await generateInvoices(pendingOrders);
+    const result = await onBulkInvoice(selectedRowIds);
     
     if (result.success) {
       toast({
         title: 'Success',
-        description: `${pendingOrders.length} invoices generated successfully.`,
+        description: result.message,
       });
       setSelectedRowIds([]);
     } else {
@@ -107,27 +102,27 @@ export default function OrdersTable({ data }: OrdersTableProps) {
   };
   
   const numSelected = selectedRowIds.length;
-  const numPending = data.filter(row => row.status === 'Pending').length;
+  const numInvocable = data.length;
 
   return (
     <>
-       {numSelected > 0 && (
-        <div className="p-4 bg-muted/50 border-b flex items-center justify-between">
-           <div className="text-sm text-muted-foreground">
-            {numSelected} of {numPending} pending order(s) selected.
-          </div>
-          <Button size="sm" onClick={handleBulkInvoice}><FileText className="mr-2 h-4 w-4" /> Generate Invoices</Button>
+      <div className="p-4 bg-muted/50 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="text-sm text-muted-foreground">
+          {numSelected} of {numInvocable} order(s) selected.
         </div>
-      )}
+        <Button size="sm" onClick={handleBulkAction} disabled={numSelected === 0}>
+           Generate Invoices
+        </Button>
+      </div>
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="w-10">
               <Checkbox
-                checked={numSelected > 0 && numSelected === numPending}
+                checked={numSelected > 0 && numSelected === numInvocable}
                 onCheckedChange={(checked) => handleSelectAll(!!checked)}
                 aria-label="Select all pending orders"
-                disabled={numPending === 0}
+                disabled={numInvocable === 0}
               />
             </TableHead>
             <TableHead>Order ID</TableHead>
@@ -153,7 +148,6 @@ export default function OrdersTable({ data }: OrdersTableProps) {
                     checked={isSelected}
                     onCheckedChange={(checked) => handleSelectRow(order.id, !!checked)}
                     aria-label={`Select order ${order.id}`}
-                    disabled={order.status !== 'Pending'}
                   />
                 </TableCell>
                 <TableCell className="font-medium">#{order.id.split('-')[1].toUpperCase()}</TableCell>
@@ -183,15 +177,12 @@ export default function OrdersTable({ data }: OrdersTableProps) {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      {order.status === 'Invoiced' || order.status === 'Fulfilled' ? (
+                      {order.status !== 'Pending' ? (
                          <DropdownMenuItem asChild>
                             <Link href={`/orders/${order.id}/invoice`}>View Invoice</Link>
                           </DropdownMenuItem>
                       ) : (
-                         <DropdownMenuItem>View Order Details</DropdownMenuItem>
-                      )}
-                      {order.status === 'Pending' && (
-                        <GenerateInvoiceButton orderId={order.id} status={order.status} />
+                         <GenerateInvoiceButton orderId={order.id} status={order.status} />
                       )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className="text-destructive">

@@ -36,7 +36,7 @@ function Logo() {
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen w-full">
+    <>
       <Sidebar>
         <SidebarHeader>
           <Logo />
@@ -49,6 +49,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <SidebarInset>
         {children}
       </SidebarInset>
-    </div>
+    </>
   );
 }

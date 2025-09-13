@@ -1,3 +1,4 @@
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -17,6 +18,22 @@ export async function generateInvoices(orderIds: string[]) {
       if (order && order.status === 'Pending') {
         order.status = 'Invoiced';
         order.invoiceId = `INV-${order.id.split('-')[1].toUpperCase()}`;
+        
+        // This is a temporary measure to make invoices viewable.
+        // In the final workflow, `fulfilledItems` will be populated
+        // during load sheet generation. For now, we mirror `items`.
+        order.fulfilledItems = order.items.map(item => {
+          const relevantBatches = batches.filter(b => b.skuId === item.skuId);
+          // This is a naive fulfillment for display only.
+          const firstBatch = relevantBatches[0];
+          return {
+            skuId: item.skuId,
+            quantity: item.quantity,
+            // This batchId is not final and will be determined during fulfillment.
+            batchId: firstBatch ? firstBatch.id : 'unknown-batch', 
+            price: firstBatch ? firstBatch.price : item.price,
+          }
+        });
       }
     });
 
@@ -40,80 +57,29 @@ export async function generateInvoice(orderId: string) {
     return { success: false, message: `Order is already ${order.status}.` };
   }
 
-  // NOTE: This fulfillment logic will be moved to a new "Load Sheet" generation step.
-  // For now, we keep it to ensure invoices are viewable.
-  const fulfilledItems: { skuId: string; quantity: number; batchId: string; price: number }[] = [];
-  const tempBatchQuantities: { [key: string]: number } = {};
-  
-  batches.forEach(b => {
-    tempBatchQuantities[b.id] = b.quantity;
-  });
-
   try {
-    for (const item of order.items) {
-      let remainingQuantity = item.quantity;
-
-      const relevantBatches = batches
-        .filter((b) => b.skuId === item.skuId && tempBatchQuantities[b.id] > 0)
-        .sort((a, b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime());
-
-      if (relevantBatches.reduce((sum, b) => sum + tempBatchQuantities[b.id], 0) < remainingQuantity) {
-        throw new Error(`Not enough stock for SKU ${item.skuId}. Skipping invoice generation for this order.`);
-      }
-
-      for (const batch of relevantBatches) {
-        if (remainingQuantity === 0) break;
-        
-        const quantityToTake = Math.min(remainingQuantity, tempBatchQuantities[batch.id]);
-        
-        if (quantityToTake > 0) {
-          // This is temporary, stock should not be deducted here in the final version
-          // tempBatchQuantities[batch.id] -= quantityToTake; 
-          remainingQuantity -= quantityToTake;
-
-          fulfilledItems.push({
-            skuId: item.skuId,
-            quantity: quantityToTake,
-            batchId: batch.id,
-            price: batch.price,
-          });
-        }
-      }
-    }
-    
-    // This is also temporary. We will decouple this later.
-    // Object.keys(tempBatchQuantities).forEach(batchId => {
-    //     const batch = batches.find(b => b.id === batchId)!;
-    //     const originalQuantity = batch.quantity;
-    //     const newQuantity = tempBatchQuantities[batchId];
-    //     const quantityChange = originalQuantity - newQuantity;
-
-    //     batch.quantity = newQuantity;
-
-    //     if (quantityChange > 0) {
-    //         const sku = skus.find(s => s.id === batch.skuId)!;
-    //         sku.stock -= quantityChange;
-    //     }
-    // });
-
-    const invoiceId = `INV-${order.id.split('-')[1].toUpperCase()}`;
+    // This logic is now simplified. We just update the status and create an invoice ID.
+    // Stock is NOT deducted here.
     order.status = 'Invoiced';
-    order.invoiceId = invoiceId;
+    order.invoiceId = `INV-${order.id.split('-')[1].toUpperCase()}`;
     
-    // Temporarily assign fulfilledItems so the invoice page can render.
-    // In the future, this will be populated during load sheet generation.
-    order.fulfilledItems = fulfilledItems;
-    
-    order.items = fulfilledItems.map(fi => ({
-      skuId: fi.skuId,
-      quantity: fi.quantity,
-      price: fi.price,
-    }));
-
+    // This is a temporary measure to make invoices viewable.
+    // In the final workflow, `fulfilledItems` will be populated
+    // during load sheet generation. For now, we mirror `items`.
+    order.fulfilledItems = order.items.map(item => {
+      const relevantBatches = batches.filter(b => b.skuId === item.skuId);
+      // This is a naive fulfillment for display only.
+      const firstBatch = relevantBatches[0];
+      return {
+        skuId: item.skuId,
+        quantity: item.quantity,
+        // This batchId is not final and will be determined during fulfillment.
+        batchId: firstBatch ? firstBatch.id : 'unknown-batch',
+        price: firstBatch ? firstBatch.price : item.price,
+      }
+    });
 
     revalidatePath('/orders');
-    revalidatePath('/inventory');
-    revalidatePath('/sku');
     revalidatePath(`/orders/${orderId}/invoice`);
 
   } catch (error) {

@@ -1,3 +1,4 @@
+
 export type User = {
   id: string;
   name: string;
@@ -50,6 +51,13 @@ export type OrderItem = {
   price: number;
 };
 
+export type FulfilledItem = {
+  skuId: string;
+  quantity: number;
+  batchId: string;
+  price: number;
+}
+
 export type Order = {
   id: string;
   outletId: string;
@@ -58,10 +66,22 @@ export type Order = {
   items: OrderItem[];
   status: 'Pending' | 'Invoiced' | 'Fulfilled' | 'Cancelled';
   invoiceId?: string;
-  fulfilledItems?: {
-    skuId: string;
-    quantity: number;
-    batchId: string;
-    price: number;
-  }[];
+  fulfilledItems?: FulfilledItem[];
 };
+
+export type LoadSheetItem = {
+  orderId: string;
+  skuId: string;
+  requestedQuantity: number;
+  fulfilledQuantity: number;
+  batchId?: string; // Assigned during fulfillment
+}
+
+export type LoadSheet = {
+  id: string;
+  creationDate: string;
+  assignedTo: string; // userId
+  status: 'Pending' | 'Loaded' | 'Delivered' | 'Completed';
+  items: LoadSheetItem[];
+  relatedOrders: string[]; // orderIds
+}

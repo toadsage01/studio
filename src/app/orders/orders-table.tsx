@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, FileText, Truck } from 'lucide-react';
+import { MoreHorizontal, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { generateInvoice, generateInvoices } from './actions';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -51,16 +51,16 @@ function GenerateInvoiceButton({ orderId, status }: { orderId: string, status: s
 
 type OrdersTableProps = {
   data: OrderWithDetails[];
-  isInvoiceCreationPage?: boolean;
 };
 
-export default function OrdersTable({ data, isInvoiceCreationPage = true }: OrdersTableProps) {
+export default function OrdersTable({ data }: OrdersTableProps) {
   const [selectedRowIds, setSelectedRowIds] = React.useState<string[]>([]);
   const { toast } = useToast();
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedRowIds(data.map(row => row.id));
+      const pendingOrderIds = data.filter(row => row.status === 'Pending').map(row => row.id);
+      setSelectedRowIds(pendingOrderIds);
     } else {
       setSelectedRowIds([]);
     }
@@ -88,13 +88,6 @@ export default function OrdersTable({ data, isInvoiceCreationPage = true }: Orde
       });
       return;
     }
-    
-    if (pendingOrders.length !== selectedRowIds.length) {
-       toast({
-        title: 'Some orders skipped',
-        description: 'Only "Pending" orders can be invoiced. Other selections were ignored.',
-      });
-    }
 
     const result = await generateInvoices(pendingOrders);
     
@@ -111,19 +104,30 @@ export default function OrdersTable({ data, isInvoiceCreationPage = true }: Orde
         description: result.message,
       });
     }
-
   };
+  
+  const numSelected = selectedRowIds.length;
+  const numPending = data.filter(row => row.status === 'Pending').length;
 
   return (
     <>
+       {numSelected > 0 && (
+        <div className="p-4 bg-muted/50 border-b flex items-center justify-between">
+           <div className="text-sm text-muted-foreground">
+            {numSelected} of {numPending} pending order(s) selected.
+          </div>
+          <Button size="sm" onClick={handleBulkInvoice}><FileText className="mr-2 h-4 w-4" /> Generate Invoices</Button>
+        </div>
+      )}
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="w-10">
               <Checkbox
-                checked={selectedRowIds.length === data.length && data.length > 0}
-                onCheckedChange={handleSelectAll}
-                aria-label="Select all"
+                checked={numSelected > 0 && numSelected === numPending}
+                onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                aria-label="Select all pending orders"
+                disabled={numPending === 0}
               />
             </TableHead>
             <TableHead>Order ID</TableHead>
@@ -133,12 +137,7 @@ export default function OrdersTable({ data, isInvoiceCreationPage = true }: Orde
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Amount</TableHead>
             <TableHead className="text-right">
-                {selectedRowIds.length > 0 && (
-                <div className="flex items-center justify-end gap-2">
-                    <Button size="sm" onClick={handleBulkInvoice}><FileText className="mr-2 h-4 w-4" /> Generate Invoices</Button>
-                    <Button size="sm" variant="outline"><Truck className="mr-2 h-4 w-4" /> Create Load Sheet</Button>
-                </div>
-                )}
+                Actions
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -154,6 +153,7 @@ export default function OrdersTable({ data, isInvoiceCreationPage = true }: Orde
                     checked={isSelected}
                     onCheckedChange={(checked) => handleSelectRow(order.id, !!checked)}
                     aria-label={`Select order ${order.id}`}
+                    disabled={order.status !== 'Pending'}
                   />
                 </TableCell>
                 <TableCell className="font-medium">#{order.id.split('-')[1].toUpperCase()}</TableCell>
@@ -190,7 +190,7 @@ export default function OrdersTable({ data, isInvoiceCreationPage = true }: Orde
                       ) : (
                          <DropdownMenuItem>View Order Details</DropdownMenuItem>
                       )}
-                      {order.status === 'Pending' && isInvoiceCreationPage && (
+                      {order.status === 'Pending' && (
                         <GenerateInvoiceButton orderId={order.id} status={order.status} />
                       )}
                       <DropdownMenuSeparator />

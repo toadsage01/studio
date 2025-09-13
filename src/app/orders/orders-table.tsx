@@ -116,19 +116,6 @@ export default function OrdersTable({ data, isInvoiceCreationPage = true }: Orde
 
   return (
     <>
-      {selectedRowIds.length > 0 && isInvoiceCreationPage && (
-        <div className="p-2 border-b bg-muted/50 flex items-center gap-2">
-            <p className="text-sm text-muted-foreground px-2">{selectedRowIds.length} order(s) selected.</p>
-            <Button size="sm" onClick={handleBulkInvoice}><FileText className="mr-2" /> Generate Invoices</Button>
-            <Button size="sm" variant="outline"><Truck className="mr-2" /> Create Load Sheet</Button>
-        </div>
-      )}
-       {selectedRowIds.length > 0 && !isInvoiceCreationPage && (
-        <div className="p-2 border-b bg-muted/50 flex items-center gap-2">
-            <p className="text-sm text-muted-foreground px-2">{selectedRowIds.length} order(s) selected.</p>
-            <Button size="sm" variant="outline"><Truck className="mr-2" /> Create Load Sheet</Button>
-        </div>
-      )}
       <Table>
         <TableHeader>
           <TableRow>
@@ -145,7 +132,14 @@ export default function OrdersTable({ data, isInvoiceCreationPage = true }: Orde
             <TableHead>Date</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Amount</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="text-right">
+                {selectedRowIds.length > 0 && (
+                <div className="flex items-center justify-end gap-2">
+                    <Button size="sm" onClick={handleBulkInvoice}><FileText className="mr-2 h-4 w-4" /> Generate Invoices</Button>
+                    <Button size="sm" variant="outline"><Truck className="mr-2 h-4 w-4" /> Create Load Sheet</Button>
+                </div>
+                )}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

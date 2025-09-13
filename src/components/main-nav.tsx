@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import {
   CalendarDays,
   ClipboardList,
-  FileText,
   LayoutDashboard,
   Map,
   Package,
@@ -22,8 +21,7 @@ import {
 
 const links = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/orders', label: 'All Orders', icon: ClipboardList },
-  { href: '/invoices', label: 'Invoices', icon: FileText },
+  { href: '/orders', label: 'Orders & Invoices', icon: ClipboardList },
   { href: '/load-sheets', label: 'Load Sheets', icon: Truck },
   { href: '/schedule', label: 'Schedule', icon: CalendarDays },
   { href: '/routes', label: 'Route Plans', icon: Map },

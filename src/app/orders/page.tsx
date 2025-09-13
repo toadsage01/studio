@@ -1,8 +1,8 @@
+
 import DashboardLayout from '@/components/dashboard-layout';
 import PageHeader from '@/components/page-header';
 import { getOrders, getOutlets, getUsers } from '@/lib/data';
 import { Button } from '@/components/ui/button';
-import { generateInvoices } from './actions';
 import OrdersTable from './orders-table';
 
 
@@ -25,13 +25,13 @@ export default async function OrdersPage() {
   return (
     <DashboardLayout>
       <PageHeader
-        title="Orders"
+        title="All Orders"
         description="View and manage all customer orders."
         actions={<Button>New Order</Button>}
       />
       <div className="p-4 lg:p-6">
         <div className="rounded-lg border shadow-sm">
-          <OrdersTable data={ordersWithDetails} />
+          <OrdersTable data={ordersWithDetails} isInvoiceCreationPage={false} />
         </div>
       </div>
     </DashboardLayout>

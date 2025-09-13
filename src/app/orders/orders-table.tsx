@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -19,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, FileText, PackageCheck, Truck } from 'lucide-react';
+import { MoreHorizontal, FileText, Truck } from 'lucide-react';
 import Link from 'next/link';
 import { generateInvoice, generateInvoices } from './actions';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -50,9 +51,10 @@ function GenerateInvoiceButton({ orderId, status }: { orderId: string, status: s
 
 type OrdersTableProps = {
   data: OrderWithDetails[];
+  isInvoiceCreationPage?: boolean;
 };
 
-export default function OrdersTable({ data }: OrdersTableProps) {
+export default function OrdersTable({ data, isInvoiceCreationPage = true }: OrdersTableProps) {
   const [selectedRowIds, setSelectedRowIds] = React.useState<string[]>([]);
   const { toast } = useToast();
 
@@ -114,10 +116,16 @@ export default function OrdersTable({ data }: OrdersTableProps) {
 
   return (
     <>
-      {selectedRowIds.length > 0 && (
+      {selectedRowIds.length > 0 && isInvoiceCreationPage && (
         <div className="p-2 border-b bg-muted/50 flex items-center gap-2">
             <p className="text-sm text-muted-foreground px-2">{selectedRowIds.length} order(s) selected.</p>
             <Button size="sm" onClick={handleBulkInvoice}><FileText className="mr-2" /> Generate Invoices</Button>
+            <Button size="sm" variant="outline"><Truck className="mr-2" /> Create Load Sheet</Button>
+        </div>
+      )}
+       {selectedRowIds.length > 0 && !isInvoiceCreationPage && (
+        <div className="p-2 border-b bg-muted/50 flex items-center gap-2">
+            <p className="text-sm text-muted-foreground px-2">{selectedRowIds.length} order(s) selected.</p>
             <Button size="sm" variant="outline"><Truck className="mr-2" /> Create Load Sheet</Button>
         </div>
       )}
@@ -188,7 +196,7 @@ export default function OrdersTable({ data }: OrdersTableProps) {
                       ) : (
                          <DropdownMenuItem>View Order Details</DropdownMenuItem>
                       )}
-                      {order.status === 'Pending' && (
+                      {order.status === 'Pending' && isInvoiceCreationPage && (
                         <GenerateInvoiceButton orderId={order.id} status={order.status} />
                       )}
                       <DropdownMenuSeparator />

@@ -1,9 +1,8 @@
 import DashboardLayout from '@/components/dashboard-layout';
+export const dynamic = 'force-dynamic';
 import PageHeader from '@/components/page-header';
 import { getActivityLogs } from '@/lib/activity';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-
-export const dynamic = 'force-dynamic';
 
 export default async function ActivityPage() {
   const logs = await getActivityLogs(100);

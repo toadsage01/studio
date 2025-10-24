@@ -1,5 +1,6 @@
 
 import DashboardLayout from '@/components/dashboard-layout';
+export const dynamic = 'force-dynamic';
 import PageHeader from '@/components/page-header';
 import { getOrders, getOutlets, getUsers } from '@/lib/data';
 import OrdersTable from './orders-table';

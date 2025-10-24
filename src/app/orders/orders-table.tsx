@@ -37,7 +37,7 @@ function GenerateInvoiceButton({ orderId, status }: { orderId: string, status: s
   const generateInvoiceWithId = generateInvoice.bind(null, orderId);
 
   return (
-    <form action={generateInvoiceWithId}>
+  <form action={async (fd: FormData) => { await generateInvoiceWithId(); }}>
       <button
         type="submit"
         disabled={status !== 'Pending'}

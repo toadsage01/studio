@@ -3,6 +3,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { orders, skus } from '@/lib/data-in-mem';
+import { logActivity } from '@/lib/activity';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import type { OrderItem } from '@/lib/types';
@@ -23,6 +24,7 @@ export async function generateInvoices(orderIds: string[]) {
     });
 
     revalidatePath('/orders');
+    await logActivity({ event: 'invoice.bulkGenerated', entity: 'order', details: { orderIds } });
     return { success: true, message: 'Invoices generated successfully.' };
 
   } catch (error) {
@@ -43,11 +45,12 @@ export async function generateInvoice(orderId: string) {
   }
 
   try {
-    order.status = 'Invoiced';
+  order.status = 'Invoiced';
     order.invoiceId = `INV-${order.id.split('-')[1].toUpperCase()}`;
     
     revalidatePath('/orders');
     revalidatePath(`/orders/${orderId}/invoice`);
+  await logActivity({ event: 'invoice.generated', entity: 'order', entityId: orderId });
 
   } catch (error) {
     console.error('Invoice generation failed:', (error as Error).message);
@@ -99,9 +102,10 @@ export async function createOrder(data: z.infer<typeof createOrderSchema>) {
             status: 'Pending' as const,
         };
 
-        orders.unshift(newOrder); // Add to the beginning of the list
+  orders.unshift(newOrder); // Add to the beginning of the list
 
         revalidatePath('/orders');
+  await logActivity({ event: 'order.created', entity: 'order', entityId: newOrder.id, details: { outletId } });
 
     } catch (error) {
         return { success: false, message: "An unexpected error occurred while creating the order." };

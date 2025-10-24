@@ -1,5 +1,6 @@
 
 import { getLoadSheets, getOrders, getOutlets, getSKUs } from '@/lib/data';
+export const dynamic = 'force-dynamic';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import DashboardLayout from '@/components/dashboard-layout';
@@ -33,13 +34,13 @@ function UpdateStatusForm({ loadSheetId, orderId, skuId, quantity, currentStatus
 
   return (
     <form className="flex gap-2">
-      {canDeliver && (
-         <Button formAction={() => updateStatus('Delivered', quantity)} size="sm" variant="secondary" disabled={!canDeliver}>
+    {canDeliver && (
+      <Button formAction={async (_fd: FormData) => { await updateStatus('Delivered', quantity); }} size="sm" variant="secondary" disabled={!canDeliver}>
             <Check className="mr-2 h-3 w-3" /> Deliver
         </Button>
       )}
       {canReturn && (
-         <Button formAction={() => updateStatus('Returned', remainingToReturn)} size="sm" variant="outline" disabled={!canReturn || remainingToReturn === 0}>
+      <Button formAction={async (_fd: FormData) => { await updateStatus('Returned', remainingToReturn); }} size="sm" variant="outline" disabled={!canReturn || remainingToReturn === 0}>
             <Undo2 className="mr-2 h-3 w-3" /> Return
         </Button>
       )}

@@ -10,6 +10,7 @@ import {
   users,
 } from '@/lib/data-in-mem';
 import type { FulfilledItem, LoadSheet, LoadSheetItem, Order } from '@/lib/types';
+import { logActivity } from '@/lib/activity';
 import { redirect } from 'next/navigation';
 
 export async function createLoadSheet(orderIds: string[], userId: string) {
@@ -128,6 +129,7 @@ export async function createLoadSheet(orderIds: string[], userId: string) {
       relatedOrders: orderIds,
     };
     loadSheets.push(newLoadSheet);
+    await logActivity({ event: 'loadSheet.created', entity: 'loadSheet', entityId: newLoadSheet.id, details: { orders: orderIds, assignedTo: user.name } });
     
     // Update order statuses and fulfilledItems
     ordersToProcess.forEach(order => {
@@ -212,10 +214,11 @@ export async function updateLoadSheetItemStatus(loadSheetId: string, orderId: st
             });
         }
 
-        revalidatePath(`/load-sheets/${loadSheetId}`);
+    revalidatePath(`/load-sheets/${loadSheetId}`);
         revalidatePath('/inventory');
         revalidatePath('/sku');
         revalidatePath('/orders');
+    await logActivity({ event: 'loadSheet.itemStatusUpdated', entity: 'loadSheetItem', entityId: `${orderId}:${skuId}`, details: { loadSheetId, newStatus, quantity } });
         return { success: true, message: `Item status updated to ${newStatus}.` };
 
     } catch (error) {

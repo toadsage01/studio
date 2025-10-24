@@ -1,5 +1,6 @@
 
 import DashboardLayout from '@/components/dashboard-layout';
+export const dynamic = 'force-dynamic';
 import PageHeader from '@/components/page-header';
 import { getOutlets, getSKUs } from '@/lib/data';
 import CreateOrderForm from './create-order-form';

@@ -8,6 +8,7 @@ import {
 import { format } from 'date-fns';
 
 import DashboardLayout from '@/components/dashboard-layout';
+export const dynamic = 'force-dynamic';
 import PageHeader from '@/components/page-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';

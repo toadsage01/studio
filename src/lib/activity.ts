@@ -1,5 +1,3 @@
-import { getDb } from './firebase-admin';
-
 export type Activity = {
   id?: string;
   timestamp: string; // ISO
@@ -26,7 +24,13 @@ export async function logActivity(activity: Omit<Activity, 'timestamp' | 'id'> &
   memoryLogs.push(entry);
 
   // Write to Firestore if available
-  const db = getDb();
+  let db: any;
+  try {
+    const mod = await import('./firebase-admin');
+    db = mod.getDb();
+  } catch {
+    db = undefined;
+  }
   if (db) {
     try {
       await db.collection('activityLogs').add(entry);
@@ -39,7 +43,13 @@ export async function logActivity(activity: Omit<Activity, 'timestamp' | 'id'> &
 }
 
 export async function getActivityLogs(limit = 50): Promise<Activity[]> {
-  const db = getDb();
+  let db: any;
+  try {
+    const mod = await import('./firebase-admin');
+    db = mod.getDb();
+  } catch {
+    db = undefined;
+  }
   if (db) {
     try {
       const snap = await db

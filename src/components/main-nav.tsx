@@ -20,6 +20,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { useSession } from 'next-auth/react';
 
 const links = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -36,10 +37,19 @@ const links = [
 
 export default function MainNav() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const role = (session?.user as any)?.role as string | undefined;
+
+  const filteredLinks = links.filter((l) => {
+    if (l.href === '/users') {
+      return role === 'Admin';
+    }
+    return true;
+  });
 
   return (
     <SidebarMenu>
-      {links.map((link) => (
+      {filteredLinks.map((link) => (
         <SidebarMenuItem key={link.href}>
           <SidebarMenuButton
             asChild

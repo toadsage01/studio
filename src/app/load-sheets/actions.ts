@@ -11,9 +11,14 @@ import {
 } from '@/lib/data-in-mem';
 import type { FulfilledItem, LoadSheet, LoadSheetItem, Order } from '@/lib/types';
 import { logActivity } from '@/lib/activity';
+import { getSession, hasRole } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
 export async function createLoadSheet(orderIds: string[], userId: string) {
+    const session = await getSession();
+    if (!session || !hasRole(session, ['Admin', 'Manager'])) {
+        return { success: false, message: 'Unauthorized.' };
+    }
   if (!orderIds || orderIds.length === 0) {
     return { success: false, message: 'No invoiced orders selected.' };
   }
@@ -155,7 +160,12 @@ export async function createLoadSheet(orderIds: string[], userId: string) {
 }
 
 export async function updateLoadSheetItemStatus(loadSheetId: string, orderId: string, skuId: string, newStatus: 'Delivered' | 'Returned', quantity: number) {
-    try {
+        const session = await getSession();
+        // Allow all authenticated roles to update delivery status (Sales Rep and above)
+        if (!session || !hasRole(session, ['Admin', 'Manager', 'Sales Rep'])) {
+            return { success: false, message: 'Unauthorized.' };
+        }
+        try {
         const sheet = loadSheets.find(ls => ls.id === loadSheetId);
         if (!sheet) return { success: false, message: "Load sheet not found." };
 

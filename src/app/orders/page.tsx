@@ -3,6 +3,7 @@ import DashboardLayout from '@/components/dashboard-layout';
 export const dynamic = 'force-dynamic';
 import PageHeader from '@/components/page-header';
 import { getOrders, getOutlets, getUsers } from '@/lib/data';
+import { getSession } from '@/lib/auth';
 import OrdersTable from './orders-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -22,14 +23,21 @@ import { PlusCircle } from 'lucide-react';
 import type { User } from '@/lib/types';
 
 export default async function OrdersPage() {
+  const session = await getSession();
+  // If middleware is disabled, you could uncomment the next lines to protect this page:
+  // if (!session) redirect('/auth/signin');
   const orders = await getOrders();
   const outlets = await getOutlets();
   const allUsers = await getUsers();
 
-  // In a real app, you would get the current user from an authentication context.
-  // For this prototype, we'll hardcode the current user as an Admin.
-  // You can change this to 'user-2' (Sales Rep) or 'user-4' (Manager) to test access control.
-  const currentUser = allUsers.find(u => u.id === 'user-1') as User;
+  // Get current user from session
+  const currentUser = (session?.user
+    ? {
+        id: (session.user as any).id,
+        name: session.user.name || 'User',
+        role: (session.user as any).role,
+      }
+    : allUsers.find(u => u.id === 'user-1')) as User;
 
   const pendingOrders = orders.filter(o => o.status === 'Pending');
   const invoicedOrders = orders.filter(o => o.invoiceId);

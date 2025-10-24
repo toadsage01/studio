@@ -38,8 +38,9 @@ yarn-error.log*
 next-env.d.ts
 
 .genkit/*
-.env*
+.env* 
+# ignore all env files
 
 # firebase
 firebase-debug.log
-firestore-debug.log
+firestore-debug.logstudio-dev-manas-firebase-adminsdk-fbsvc-b5c8063e56.json

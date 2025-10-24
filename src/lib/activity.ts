@@ -36,7 +36,6 @@ export async function logActivity(activity: Omit<Activity, 'timestamp' | 'id'> &
       await db.collection('activityLogs').add(entry);
     } catch (e) {
       // Non-fatal in dev
-      // eslint-disable-next-line no-console
       console.warn('Failed to write activity log to Firestore:', (e as Error).message);
     }
   }

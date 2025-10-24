@@ -7,9 +7,14 @@ import { logActivity } from '@/lib/activity';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import type { OrderItem } from '@/lib/types';
+import { getSession, hasRole } from '@/lib/auth';
 
 
 export async function generateInvoices(orderIds: string[]) {
+  const session = await getSession();
+  if (!session || !hasRole(session, ['Admin', 'Manager'])) {
+    return { success: false, message: 'Unauthorized.' };
+  }
   if (!orderIds || orderIds.length === 0) {
     return { success: false, message: 'No orders selected.' };
   }
@@ -34,6 +39,10 @@ export async function generateInvoices(orderIds: string[]) {
 
 
 export async function generateInvoice(orderId: string) {
+  const session = await getSession();
+  if (!session || !hasRole(session, ['Admin', 'Manager'])) {
+    return { success: false, message: 'Unauthorized.' };
+  }
   const order = orders.find((o) => o.id === orderId);
 
   if (!order) {
@@ -72,6 +81,10 @@ const createOrderSchema = z.object({
 
 
 export async function createOrder(data: z.infer<typeof createOrderSchema>) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, message: 'Unauthorized.' };
+  }
     try {
         const validation = createOrderSchema.safeParse(data);
         if (!validation.success) {

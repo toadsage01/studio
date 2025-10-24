@@ -1,5 +1,4 @@
+// Deprecated in favor of eslint.config.mjs
 {
-  "extends": [
-    "next/core-web-vitals"
-  ]
+  "extends": []
 }

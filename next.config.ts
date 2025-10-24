@@ -1,35 +1,38 @@
-import type {NextConfig} from 'next';
+import type { NextConfig } from 'next';
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   /* config options here */
+  // Use an alternate dist directory to bypass a locked .next folder on Windows
+  distDir: '.next-dev',
   typescript: {
     ignoreBuildErrors: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Silence multi-lockfile workspace root warning by explicitly setting Turbo's root
+  turbopack: {
+    root: process.cwd(),
+  },
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'placehold.co',
-        port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
-        port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'picsum.photos',
-        port: '',
         pathname: '/**',
       },
     ],
   },
-};
+} satisfies NextConfig;
 
 export default nextConfig;

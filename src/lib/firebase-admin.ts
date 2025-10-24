@@ -7,36 +7,70 @@ function getRequiredEnv(name: string): string | undefined {
 }
 
 let app: App | undefined;
+let initAttempted = false;
 
 export function getAdminApp(): App | undefined {
   if (app) return app;
+  if (initAttempted) return undefined;
+  initAttempted = true;
 
+  // Try multiple credential sources in order
   const projectId = getRequiredEnv('FIREBASE_PROJECT_ID');
   const clientEmail = getRequiredEnv('FIREBASE_CLIENT_EMAIL');
   let privateKey = getRequiredEnv('FIREBASE_PRIVATE_KEY');
+  const saJson = getRequiredEnv('FIREBASE_SERVICE_ACCOUNT');
+  const saB64 = getRequiredEnv('FIREBASE_SERVICE_ACCOUNT_BASE64');
 
-  if (!projectId || !clientEmail || !privateKey) {
-    // Missing admin creds; skip initializing to allow in-memory fallback.
+  try {
+    let credentials: { projectId: string; clientEmail: string; privateKey: string } | undefined;
+    if (saJson) {
+      const parsed = JSON.parse(saJson);
+      credentials = {
+        projectId: parsed.project_id || projectId!,
+        clientEmail: parsed.client_email || clientEmail!,
+        privateKey: (parsed.private_key as string) || '',
+      };
+    } else if (saB64) {
+      const decoded = Buffer.from(saB64, 'base64').toString('utf8');
+      const parsed = JSON.parse(decoded);
+      credentials = {
+        projectId: parsed.project_id || projectId!,
+        clientEmail: parsed.client_email || clientEmail!,
+        privateKey: (parsed.private_key as string) || '',
+      };
+    } else if (projectId && clientEmail && privateKey) {
+      credentials = { projectId, clientEmail, privateKey };
+    }
+
+    if (!credentials || !credentials.projectId || !credentials.clientEmail || !credentials.privateKey) {
+      return undefined; // allow fallback
+    }
+
+    // Normalize escaped newlines and strip surrounding quotes if any
+    let pk = credentials.privateKey.trim();
+    if (pk.startsWith('"') && pk.endsWith('"')) {
+      pk = pk.slice(1, -1);
+    }
+    pk = pk.replace(/\\n/g, '\n');
+
+    const apps = getApps();
+    if (!apps.length) {
+      app = initializeApp({
+        credential: cert({
+          projectId: credentials.projectId,
+          clientEmail: credentials.clientEmail,
+          privateKey: pk,
+        }),
+        projectId: credentials.projectId,
+      });
+    } else {
+      app = apps[0];
+    }
+    return app;
+  } catch (e) {
+    console.error('Firebase Admin initialization failed; falling back to in-memory data.', (e as Error).message);
     return undefined;
   }
-
-  // Normalize escaped newlines if provided via .env
-  privateKey = privateKey.replace(/\\n/g, '\n');
-
-  const apps = getApps();
-  if (!apps.length) {
-    app = initializeApp({
-      credential: cert({
-        projectId,
-        clientEmail,
-        privateKey,
-      }),
-      projectId,
-    });
-  } else {
-    app = apps[0];
-  }
-  return app;
 }
 
 export function getDb(): any {

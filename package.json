@@ -2,15 +2,25 @@
   "name": "nextn",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=18 <21"
+  },
   "scripts": {
+    "predev": "node scripts/check-node.js",
     "dev": "next dev --turbopack -p 9002",
+    "predev:9011": "node scripts/check-node.js",
+    "dev:9011": "next dev --turbopack -p 9011",
+    "dev:reset": "npm run clean && npm run dev:9011",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
-    "build": "next build",
+    "prebuild": "node scripts/check-node.js",
+    "build": "npm run clean && next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "seed": "tsx scripts/seed.ts"
+    "preseed": "node scripts/check-node.js",
+    "seed": "tsx scripts/seed.ts",
+    "clean": "node -e \"const fs=require('fs');['.next','.next-dev'].forEach(d=>{try{fs.rmSync(d,{recursive:true,force:true})}catch(e){}})\""
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.14.1",
@@ -42,11 +52,12 @@
     "date-fns": "^3.6.0",
     "dotenv": "^16.5.0",
     "embla-carousel-react": "^8.6.0",
-    "firebase": "^11.9.1",
+    "firebase": "^11.10.0",
     "firebase-admin": "^12.7.0",
     "genkit": "^1.14.1",
     "lucide-react": "^0.475.0",
-    "next": "15.3.3",
+    "next": "^15.5.6",
+    "next-auth": "^4.24.11",
     "patch-package": "^8.0.0",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
